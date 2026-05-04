@@ -26,6 +26,7 @@ from generate_invite import (
 )
 
 load_dotenv()
+load_dotenv(".env.secrets", override=True)
 
 SENDER_EMAIL    = os.environ["SENDER_EMAIL"]
 SENDER_NAME     = os.environ["SENDER_NAME"]
@@ -47,7 +48,7 @@ def load_guests(csv_path: str) -> list[dict]:
 
 def build_message(guest: dict) -> MIMEMultipart:
     invite_url = make_invite_url(INVITE_PAGE_URL, guest["name"])
-    html  = build_email_html(guest["name"], invite_url, SENDER_NAME)
+    html  = build_email_html(guest["name"], invite_url, SENDER_NAME, RSVP_URL)
     plain = (
         f"Dear {guest['name']},\n\n"
         f"You are warmly invited to our wedding!\n\n"
@@ -104,7 +105,7 @@ def _dry_run(guests: list[dict]):
         invite_url = make_invite_url(INVITE_PAGE_URL, guest["name"])
 
         # Email preview (what lands in the inbox)
-        email_html = build_email_html(guest["name"], invite_url, SENDER_NAME)
+        email_html = build_email_html(guest["name"], invite_url, SENDER_NAME, RSVP_URL)
         email_path = out_dir / f"{safe_name}_email.html"
         email_path.write_text(email_html, encoding="utf-8")
 

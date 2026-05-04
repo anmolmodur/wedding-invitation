@@ -24,7 +24,10 @@ def make_invite_url(page_url: str, guest_name: str) -> str:
 
 # ── Email HTML (Gmail-safe, inline styles, no JS) ──────────────────────────────
 
-def build_email_html(guest_name: str, invite_url: str, sender_name: str) -> str:
+WEBSITE_URL = "https://withjoy.com/anmol-and-meghana"
+
+
+def build_email_html(guest_name: str, invite_url: str, sender_name: str, rsvp_url: str = "") -> str:
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -65,7 +68,30 @@ def build_email_html(guest_name: str, invite_url: str, sender_name: str) -> str:
               Open Your Invitation &#10084;
             </a>
 
-            <p style="margin:36px 0 0;font-size:12px;color:#b09880;letter-spacing:0.06em;">
+            <p style="margin:28px 0 0;">
+              <a href="{WEBSITE_URL}"
+                 style="display:inline-block;margin:0 8px 12px;padding:12px 32px;
+                        background-color:transparent;color:#922b21;text-decoration:none;
+                        border-radius:50px;border:2px solid #922b21;
+                        font-size:12px;letter-spacing:0.12em;text-transform:uppercase;
+                        font-family:Georgia,'Times New Roman',serif;">
+                Our Website
+              </a>
+              <a href="{rsvp_url}"
+                 style="display:inline-block;margin:0 8px 12px;padding:12px 32px;
+                        background-color:transparent;color:#922b21;text-decoration:none;
+                        border-radius:50px;border:2px solid #922b21;
+                        font-size:12px;letter-spacing:0.12em;text-transform:uppercase;
+                        font-family:Georgia,'Times New Roman',serif;">
+                RSVP
+              </a>
+            </p>
+
+            <p style="margin:28px 0 8px;font-size:13px;color:#6b4f3a;line-height:1.7;">
+              The website password is <strong>thefutureforever</strong>
+            </p>
+
+            <p style="margin:16px 0 0;font-size:12px;color:#b09880;letter-spacing:0.06em;">
               &mdash; {sender_name}
             </p>
 
@@ -77,6 +103,11 @@ def build_email_html(guest_name: str, invite_url: str, sender_name: str) -> str:
                 font-family:Georgia,'Times New Roman',serif;">
         If the button does not open, copy this link into your browser:<br>
         <a href="{invite_url}" style="color:#922b21;">{invite_url}</a>
+      </p>
+
+      <p style="margin:12px 0 0;font-size:10px;color:#c4b09a;
+                font-family:Georgia,'Times New Roman',serif;letter-spacing:0.04em;">
+        This invitation was lovingly handcrafted by Anmol &amp; Meghana &#10084;
       </p>
 
     </td>
