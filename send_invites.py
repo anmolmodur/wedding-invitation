@@ -14,16 +14,11 @@ import csv
 import os
 import smtplib
 import sys
-<<<<<<< HEAD
-=======
-from email.mime.image import MIMEImage
->>>>>>> main
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
 
 from dotenv import load_dotenv
-<<<<<<< HEAD
 from generate_invite import (
     build_email_html,
     build_invite_html,
@@ -43,22 +38,6 @@ EMAIL_SUBJECT   = os.environ.get("EMAIL_SUBJECT", "You're Invited!")
 INVITE_FRONT    = os.environ.get("INVITE_FRONT", "Wedding_Invitation_Front.png")
 INVITE_BACK     = os.environ.get("INVITE_BACK",  "Wedding_Invitation_Back.png")
 GUESTS_CSV      = "guests.csv"
-=======
-from generate_invite import build_invite_html
-
-load_dotenv()
-
-SENDER_EMAIL  = os.environ["SENDER_EMAIL"]
-SENDER_NAME   = os.environ["SENDER_NAME"]
-SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]
-SMTP_HOST     = os.environ.get("SMTP_HOST", "smtp.gmail.com")
-SMTP_PORT     = int(os.environ.get("SMTP_PORT", 587))
-RSVP_URL      = os.environ["RSVP_URL"]
-EMAIL_SUBJECT = os.environ.get("EMAIL_SUBJECT", "You're Invited!")
-INVITE_FRONT  = os.environ.get("INVITE_FRONT", "invite_front.png")
-INVITE_BACK   = os.environ.get("INVITE_BACK",  "invite_back.png")
-GUESTS_CSV    = "guests.csv"
->>>>>>> main
 
 
 def load_guests(csv_path: str) -> list[dict]:
@@ -67,59 +46,22 @@ def load_guests(csv_path: str) -> list[dict]:
 
 
 def build_message(guest: dict) -> MIMEMultipart:
-<<<<<<< HEAD
     invite_url = make_invite_url(INVITE_PAGE_URL, guest["name"])
     html  = build_email_html(guest["name"], invite_url, SENDER_NAME)
     plain = (
         f"Dear {guest['name']},\n\n"
         f"You are warmly invited to our wedding!\n\n"
         f"Open your personal invitation: {invite_url}\n\n"
-=======
-    html = build_invite_html(
-        guest_name=guest["name"],
-        rsvp_url=RSVP_URL,
-        front_image_path=INVITE_FRONT,
-        back_image_path=INVITE_BACK,
-        sender_name=SENDER_NAME,
-        use_cid=True,
-    )
-
-    plain = (
-        f"Dear {guest['name']},\n\n"
-        f"You are warmly invited to our wedding!\n\n"
->>>>>>> main
         f"Please RSVP at: {RSVP_URL}\n\n"
         f"— {SENDER_NAME}"
     )
 
-<<<<<<< HEAD
     msg = MIMEMultipart("alternative")
     msg["Subject"] = EMAIL_SUBJECT
     msg["From"]    = f"{SENDER_NAME} <{SENDER_EMAIL}>"
     msg["To"]      = guest["email"]
     msg.attach(MIMEText(plain, "plain"))
     msg.attach(MIMEText(html,  "html"))
-=======
-    # multipart/related groups the HTML body with its inline CID images
-    related = MIMEMultipart("related")
-
-    alt = MIMEMultipart("alternative")
-    alt.attach(MIMEText(plain, "plain"))
-    alt.attach(MIMEText(html,  "html"))
-    related.attach(alt)
-
-    for cid, path in (("invite_front", INVITE_FRONT), ("invite_back", INVITE_BACK)):
-        img = MIMEImage(Path(path).read_bytes())
-        img.add_header("Content-ID", f"<{cid}>")
-        img.add_header("Content-Disposition", "inline")
-        related.attach(img)
-
-    msg = MIMEMultipart("mixed")
-    msg["Subject"] = EMAIL_SUBJECT
-    msg["From"]    = f"{SENDER_NAME} <{SENDER_EMAIL}>"
-    msg["To"]      = guest["email"]
-    msg.attach(related)
->>>>>>> main
     return msg
 
 
@@ -155,7 +97,6 @@ def send_all(guests: list[dict], dry_run: bool = False, to_filter: str | None = 
 def _dry_run(guests: list[dict]):
     out_dir = Path("dry_run_output")
     out_dir.mkdir(exist_ok=True)
-<<<<<<< HEAD
     print(f"DRY RUN — writing previews to {out_dir}/\n")
 
     for guest in guests:
@@ -184,38 +125,13 @@ def _dry_run(guests: list[dict]):
         print(f"    url:    {invite_url}")
 
     print("\nOpen the HTML files in a browser to preview.")
-=======
-    print(f"DRY RUN — writing HTML previews to {out_dir}/\n")
-    for guest in guests:
-        msg = build_message(guest)
-        safe_name = guest["name"].replace(" ", "_").replace("/", "-")
-        html_path = out_dir / f"{safe_name}.html"
-        # extract the html part
-        for part in msg.walk():
-            if part.get_content_type() == "text/html":
-                html_path.write_text(part.get_payload(decode=True).decode("utf-8"))
-                break
-        print(f"  Preview: {html_path}")
-    print("\nOpen the HTML files in a browser to preview the invitation.")
->>>>>>> main
 
 
 def send_test(email: str):
     """Send a single test invitation to any email address, bypassing guests.csv."""
-<<<<<<< HEAD
     guest = {"name": "Test Guest", "email": email}
     msg   = build_message(guest)
     msg.replace_header("Subject", f"[TEST] {EMAIL_SUBJECT}")
-=======
-    for img in (INVITE_FRONT, INVITE_BACK):
-        if not Path(img).exists():
-            print(f"Error: image file not found: {img}")
-            sys.exit(1)
-
-    guest = {"name": "Test Guest", "email": email}
-    msg = build_message(guest)
-    msg["Subject"] = f"[TEST] {EMAIL_SUBJECT}"
->>>>>>> main
 
     print(f"Connecting to {SMTP_HOST}:{SMTP_PORT} …")
     with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
@@ -235,26 +151,13 @@ def main():
     parser.add_argument("--to", metavar="EMAIL",
                         help="Send to a single recipient (must be in guests.csv).")
     parser.add_argument("--test", metavar="EMAIL",
-<<<<<<< HEAD
                         help="Send a test invitation to any email address.")
-=======
-                        help="Send a test invitation to any email address (bypasses guests.csv).")
->>>>>>> main
     args = parser.parse_args()
 
     if args.test:
         send_test(args.test)
         return
 
-<<<<<<< HEAD
-=======
-    # Validate image files exist before starting
-    for img in (INVITE_FRONT, INVITE_BACK):
-        if not Path(img).exists():
-            print(f"Error: image file not found: {img}")
-            sys.exit(1)
-
->>>>>>> main
     guests = load_guests(GUESTS_CSV)
     print(f"Loaded {len(guests)} guest(s) from {GUESTS_CSV}")
     send_all(guests, dry_run=args.dry_run, to_filter=args.to)
